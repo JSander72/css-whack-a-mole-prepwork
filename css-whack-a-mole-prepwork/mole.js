@@ -1,28 +1,57 @@
-/* Your code here */
+let score = 0;
+let molesLeft = 30;
+let popupLength = 3000;
+let hideTimeout;
+let clickable = false;
+
+function popUpRandomMole() {
+  if (molesLeft <= 0) {
+    document.querySelector('.sb__game-over').classList.remove('sb__game-over--hidden');
+    return;
+  }
+
+  const moleHeads = document.querySelectorAll('.wgs__mole-head:not(.wgs__mole-head--whacked)');
+  if (moleHeads.length === 0) {
+    return;
+  }
+  const moleIndex = Math.floor(Math.random() * moleHeads.length);
+  const moleHead = moleHeads[moleIndex];
+
+  clickable = true;
+  moleHead.classList.remove('wgs__mole-head--hidden');
+
+  molesLeft -= 1;
+  document.querySelector('.sb__moles').innerHTML = molesLeft;
+
+  hideTimeout = setTimeout(() => hideMole(moleHead), popupLength);
+}
+
+function hideMole(mole) {
+  clickable = false;
+  mole.classList.add('wgs__mole-head--hidden');
+
+  setTimeout(popUpRandomMole, 500);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(popUpRandomMole, 0);
+
+  const moleHeads = document.querySelectorAll('.wgs__mole-head');
+  for (let moleHead of moleHeads) {
+    moleHead.addEventListener('click', event => {
+      if (!clickable) return;
+
+      score += 1;
+      document.querySelector('.sb__score').innerHTML = score;
+      popupLength -= popupLength / 10;
+
+      clearTimeout(hideTimeout);
+      hideMole(event.target);
 
 
+      event.target.classList.add('wgs__mole-head--hidden');
 
-/* UNCOMMENT THE CODE BELOW WHEN DIRECTED */
-/* .sb {
-  background-color: cornflowerblue;
-  border-bottom: 1px solid #645DED;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  color: white;
-  display: flex;
-  font-size: 30px;
-  margin-bottom: 50px;
-  padding: 10px 20px;
-} */
-
-/* .sb__mole-counter {
-  flex: 1 0 0;
-  text-align: right;
-} */
-
-/* .sb__score-holder {
-  flex: 1 0 0;
-} */
-
-/* .sb__game-over--hidden {
-  display: none;
-} */
+      event.target.classList.add('wgs__mole-head--whacked');
+    });
+  }
+});
